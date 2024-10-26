@@ -114,11 +114,17 @@ CACHES = {
         'LOCATION': 'redis://redis:6379/1',  # Points to the Redis container in Docker
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'IGNORE_EXCEPTIONS': True,  # Avoid crashes if Redis is temporarily unavailable
+            'IGNORE_EXCEPTIONS': True,
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 100,
+                'retry_on_timeout': True,
+            }
         }
     }
 }
 
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'default'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

@@ -25,25 +25,13 @@ services:
 
   redis:
     image: redis/redis-stack:7.2.0-v10
-    expose:
-      - 6379
-      - 8001
+    ports:
+      - "6379:6379"
     command: redis-server --maxmemory 1024mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
     volumes:
       - redis_data:/data
-
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    environment:
-      - REDIS_HOSTS=local:redis:6379
-      - HTTP_USER=root
-      - HTTP_PASSWORD=qwerty
-    ports:
-      - 8081:8081
-    depends_on:
-      - redis
 
 volumes:
   postgres_data:
