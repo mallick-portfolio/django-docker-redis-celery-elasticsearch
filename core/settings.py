@@ -85,6 +85,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -108,20 +112,19 @@ DATABASES = {
     }
 }
 
+# settings.py
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://redis:6379/1',  # Points to the Redis container in Docker
+        'LOCATION': 'redis://chatpa-redis-1:6379/1',  # Using the container name as the host
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'IGNORE_EXCEPTIONS': True,
-            'CONNECTION_POOL_KWARGS': {
-                'max_connections': 100,
-                'retry_on_timeout': True,
-            }
+            'SOCKET_CONNECT_TIMEOUT': 10,  # Increase connect timeout
+            'SOCKET_TIMEOUT': 10, 
         }
     }
 }
+
 ELASTICSEARCH_DSL = {
     'default': {
         'hosts': 'elasticsearch:9200'
@@ -172,19 +175,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 LOGGING = {
-    'version': 1,  # the version of the logging system (always 1 for now)
-    'disable_existing_loggers': False,  # do not disable loggers from other libraries
+    'version': 1,
+    'disable_existing_loggers': False,
 
-    # Handlers define where to send logs (e.g., to a file, console, email)
     'handlers': {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
         },
         'file': {
-            'level': 'INFO',
+            'level': 'DEBUG',  # Set to DEBUG level to capture debug messages
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'logs/django.log'),
         },
@@ -194,7 +195,6 @@ LOGGING = {
         },
     },
 
-    # Formatters define the layout of log messages
     'formatters': {
         'verbose': {
             'format': '{levelname} {asctime} {module} {message}',
@@ -206,17 +206,22 @@ LOGGING = {
         },
     },
 
-    # Loggers define what gets logged and where
     'loggers': {
         'django': {
             'handlers': ['console', 'file', 'mail_admins'],
             'level': 'INFO',
-            'propagate': True,  # whether to pass the logs to higher-level loggers
+            'propagate': True,
         },
         'django.request': {
             'handlers': ['file', 'mail_admins'],
             'level': 'ERROR',
             'propagate': False,
+        },
+        # Add a custom logger for your app
+        'post': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': True,
         },
     }
 }

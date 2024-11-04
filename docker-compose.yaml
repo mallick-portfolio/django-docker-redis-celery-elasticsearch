@@ -3,7 +3,7 @@ services:
     depends_on:
       - database
       - redis
-      - elasticsearch
+      # - elasticsearch
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -28,25 +28,27 @@ services:
     image: redis/redis-stack:7.2.0-v10
     ports:
       - "6379:6379"
-    command: redis-server --maxmemory 1024mb --maxmemory-policy allkeys-lru
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     volumes:
       - redis_data:/data
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.6.1
+  #   environment:
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #   ports:
+  #     - "9200:9200"
+  #     - "9300:9300"
+  #   volumes:
+  #     - esdata:/usr/share/elasticsearch/data
 
 volumes:
   postgres_data:
   logs:
   redis_data:
-  esdata:
+  # esdata:
