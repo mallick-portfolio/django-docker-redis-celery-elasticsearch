@@ -6,11 +6,12 @@ from .serializers import PostSerializer
 from rest_framework.pagination import PageNumberPagination
 import logging
 from rest_framework import status
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 logger = logging.getLogger(__name__)
 
 class LargeResultsSetPagination(PageNumberPagination):
-    page_size = 1000
+    page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 1000
     def get_paginated_response(self, data):
@@ -33,36 +34,35 @@ class PostViewSet(viewsets.ModelViewSet):
     pagination_class = LargeResultsSetPagination
 
     def list(self, request, *args, **kwargs):
-    # Get the current page number from request query parameters
+        # Get page number and search query from request
         page_number = request.query_params.get('page', 1)
-        cache_key = f'post_list_page_{page_number}'
+        search_query = request.query_params.get('search_query', '').strip()
 
-        # Try to get cached data for this page
-        cached_data = cache.get(cache_key)
+        # Check if there's a search query; if so, skip caching
+        if not search_query:
+            cache_key = f'post_list_page_{page_number}'
+            logger.info(f"Cache key: {cache_key}")
 
-        if cached_data:
-            # Return cached paginated response
-            return Response(cached_data, status=status.HTTP_200_OK)
+            # Check for cached data only if no search query is present
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                logger.info("Returning cached data")
+                return Response(cached_data, status=status.HTTP_200_OK)
         
-        # If data is not in cache, fetch from the database and paginate
+        # Fetch data from the database and apply pagination
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
         
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            # Ensure self.paginator.page is only accessed after paginate_queryset is called
-            data = {
-                'total_count': self.paginator.page.paginator.count,
-                'current_page': self.paginator.page.number,
-                'next_page': self.paginator.page.next_page_number() if self.paginator.page.has_next() else None,
-                'previous_page': self.paginator.page.previous_page_number() if self.paginator.page.has_previous() else None,
-                'data': serializer.data
-            }
-            # Cache the paginated response data
-            cache.set(cache_key, data, timeout=60 * 15)  # Cache for 15 minutes
+            data = self.get_paginated_response(serializer.data).data
+            
+            # Only cache if no search query is present
+            if not search_query:
+                cache.set(cache_key, data, timeout=60 * 15)
             return Response(data)
 
-        # If no pagination is needed (e.g., single page), serialize and cache entire queryset
+        # For unpaginated data (single page)
         serializer = self.get_serializer(queryset, many=True)
         data = {
             'total_count': len(serializer.data),
@@ -71,7 +71,8 @@ class PostViewSet(viewsets.ModelViewSet):
             'previous_page': None,
             'data': serializer.data
         }
-        cache.set(cache_key, data, timeout=60 * 15)
+        if not search_query:
+            cache.set(cache_key, data, timeout=60 * 15)
         return Response(data)
 
 
@@ -97,6 +98,23 @@ class PostViewSet(viewsets.ModelViewSet):
         self.clear_cache()  # Clear cache after deletion
         return response
     
+
+    def get_queryset(self):
+        search_query = self.request.query_params.get('search_query', '').strip()
+        logger.info(f"Search query: {search_query}")
+        
+        if search_query:
+            vector = (
+                SearchVector('title', weight='A') +
+                SearchVector('content', weight='B') +
+                SearchVector('category__name', weight='C')
+            )
+            query = SearchQuery(search_query)
+            queryset = Post.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')
+        else:
+            queryset = super().get_queryset()
+
+        return queryset
 
     def clear_cache(self):
     # Calculate total number of pages based on queryset and page size
