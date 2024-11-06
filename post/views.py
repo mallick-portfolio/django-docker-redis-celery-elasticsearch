@@ -1,12 +1,18 @@
+import abc
 from rest_framework import viewsets
 from rest_framework.response import Response
 from django.core.cache import cache
 from .models import Post
-from .serializers import PostSerializer
+from .serializers import PostSerializer, SearchPostSerializer
 from rest_framework.pagination import PageNumberPagination
 import logging
 from rest_framework import status
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from post.documents import  PostDocument, UserDocument, CategoryDocument
+from elasticsearch_dsl import Q
+from rest_framework.views import APIView
+from rest_framework.pagination import LimitOffsetPagination
+
 
 logger = logging.getLogger(__name__)
 
@@ -126,3 +132,46 @@ class PostViewSet(viewsets.ModelViewSet):
         for page in range(1, num_pages + 1):
             cache.delete(f'post_list_page_{page}')
 
+
+
+class PaginatedElasticSearchAPIView(APIView, LimitOffsetPagination):
+    serializer_class = None
+    document_class = None
+
+    @abc.abstractmethod
+    def generate_q_expression(self, query):
+        """This method should be overridden
+        and return a Q() expression."""
+
+    def get(self, request, query):
+        try:
+            q = self.generate_q_expression(query)
+            search = self.document_class.search().query(q)
+            response = search.execute()
+
+            print(f"Found {response.hits.total.value} hit(s) for query: '{query}'")
+
+            results = self.paginate_queryset(response, request, view=self)
+            serializer = self.serializer_class(results, many=True)
+            return self.get_paginated_response(serializer.data)
+        except Exception as e:
+            return Response(e, status=500)
+
+class SearchPost(PaginatedElasticSearchAPIView):
+    document_class = PostDocument
+    serializer_class = SearchPostSerializer
+
+    def generate_q_expression(self, query):
+        return Q(
+                "multi_match", query=query,
+                fields=[
+                    "title",
+                    "author",
+                    "content",
+                    "category"
+                ], fuzziness="auto")
+    
+    def get(self, request):
+        
+        search_query = request.query_params.get('search_query', '').strip()
+        
