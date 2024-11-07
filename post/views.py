@@ -144,14 +144,14 @@ class PaginatedElasticSearchAPIView(APIView, LimitOffsetPagination):
         and return a Q() expression."""
 
     def get(self, request, query):
+        print("query", query)
         try:
             q = self.generate_q_expression(query)
             search = self.document_class.search().query(q)
+            
             response = search.execute()
-
-            print(f"Found {response.hits.total.value} hit(s) for query: '{query}'")
-
             results = self.paginate_queryset(response, request, view=self)
+            logger.info(f"Results: {results}")
             serializer = self.serializer_class(results, many=True)
             return self.get_paginated_response(serializer.data)
         except Exception as e:
@@ -170,8 +170,4 @@ class SearchPost(PaginatedElasticSearchAPIView):
                     "content",
                     "category"
                 ], fuzziness="auto")
-    
-    def get(self, request):
-        
-        search_query = request.query_params.get('search_query', '').strip()
         
