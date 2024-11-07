@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = "Bulk index all Post data to Elasticsearch"
 
     def handle(self, *args, **kwargs):
-        es = Elasticsearch(hosts=["http://localhost:9200"])
+        es = Elasticsearch(hosts=["http://elasticsearch:9200"])
         index_name = PostDocument.Index.name
 
         # Optimize settings for faster indexing
