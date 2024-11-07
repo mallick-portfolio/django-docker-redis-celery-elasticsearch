@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jmyapp-deployment
+  labels:
+    app: jmyapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jmyapp
+  template:
+    metadata:
+      labels:
+        app: jmyapp
+    spec:
+      containers:
+      - name: jmyapp
+        image: tamal008/jenkins_nextapp:1.1
