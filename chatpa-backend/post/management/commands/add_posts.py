@@ -13,14 +13,14 @@ faker = Faker()
 logger = logging.getLogger('post_generation')
 
 class Command(BaseCommand):
-    help = 'Generate 50,000,00 random posts and assign random categories'
+    help = 'Generate 10,000,00 random posts and assign random categories'
 
     def add_arguments(self, parser):
         # Optionally, you can pass the number of posts to create as an argument
         parser.add_argument(
             '--posts',
             type=int,
-            default=5000000,
+            default=1000000,
             help='Number of random posts to generate'
         )
 

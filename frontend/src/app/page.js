@@ -34,7 +34,7 @@ const Home = () => {
       <div className="w-2/4">
         <Input
           type="search"
-          placeholder="Search..."
+          placeholder="Search with post title ..."
           onChange={(e) => setSearchInput(e.target.value)}
         />
         {searchData.length ? (

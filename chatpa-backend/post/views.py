@@ -166,8 +166,5 @@ class SearchPost(PaginatedElasticSearchAPIView):
                 "multi_match", query=query,
                 fields=[
                     "title",
-                    "author",
-                    "content",
-                    "category"
-                ], fuzziness="auto")
+                ])
         
