@@ -42,18 +42,18 @@ docker exec -it <backend_container_name> python manage.py search_index --rebuild
 
 ```
 
-# Full-Text Search with PostgreSQL (replace <post_title> with your search term)
+## Full-Text Search with PostgreSQL (replace <post_title> with your search term)
 
 http://localhost:8000/api/v1/posts/?search_query=<post_title>
 
-# Paginated and Cached Post Retrieval (using Redis, replace <page_number> with the desired page number)
+## Paginated and Cached Post Retrieval (using Redis, replace <page_number> with the desired page number)
 
 http://localhost:8000/api/v1/posts/?page=<page_number>
 
-# Test Elasticsearch Search (visit in browser and type a post title in the search bar)
+## Test Elasticsearch Search (visit in browser and type a post title in the search bar)
 
 http://localhost:3000/
 
-## Let me know if there’s anything more you’d like added or clarified.
+#### Let me know if there’s anything more you’d like added or clarified.
 
-## Feel free to give me feedback on the code quality and documentation.
+#### Feel free to give me feedback on the code quality and documentation.
