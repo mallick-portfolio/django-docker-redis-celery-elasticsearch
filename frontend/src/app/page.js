@@ -1,27 +1,32 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import TodoForm from "@/components/custom_ui/TodoForm";
-
-import React from "react";
-
+"use client";
+import React, { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import axios from "axios";
 const Home = () => {
+  const [searchInput, setSearchInput] = useState("");
+  const getSearch = async (searchInput) => {
+    const response = await axios.get(
+      `http://localhost:8000/api/v1/posts/search/mother/`
+    );
+    const result = await response.data;
+    return result;
+  };
+
+  useEffect(() => {
+    const data = getSearch(searchInput);
+    console.log(data);
+  }, [searchInput]);
+
+  console.log(searchInput);
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
-      <Card className="w-[550px] shadow-xl">
-        <CardHeader>
-          <CardTitle>Create New Todo</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TodoForm />
-        </CardContent>
-      </Card>
+    <div className="flex w-screen items-center justify-center h-screen">
+      <div>
+        <Input
+          type="search"
+          placeholder="Search..."
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+      </div>
     </div>
   );
 };
