@@ -40,6 +40,12 @@ SECRET_KEY = env('SECRET_KEY', default='fallback-secret-key')
 DEBUG = env('DEBUG', default=True)
 
 ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_CREDENTIALS = True
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
 
 # Application definition
@@ -52,9 +58,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    "corsheaders",
     'post',
     'django_elasticsearch_dsl',
     'django_elasticsearch_dsl_drf',
+
 ]
 
 MIDDLEWARE = [
@@ -65,6 +73,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
 ]
 
 ROOT_URLCONF = 'core.urls'
