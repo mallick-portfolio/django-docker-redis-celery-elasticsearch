@@ -12,7 +12,7 @@ Follow these steps to set up and run the project.
 
 ```bash
 # Clone the repository
-git clone <repository_url>
+git clone https://github.com/mallick-portfolio/django-docker-redis-celery-elasticsearch.git
 cd <project_directory>
 
 # Inside the chatpa-backend directory, copy the environment files and set values
@@ -39,4 +39,13 @@ docker exec -it <backend_container_name> python manage.py add_posts
 
 # Rebuild the Elasticsearch index
 docker exec -it <backend_container_name> python manage.py search_index --rebuild
+
 ```
+# Full-Text Search with PostgreSQL (replace <post_title> with your search term)
+http://localhost:8000/api/v1/posts/?search_query=<post_title>
+
+# Paginated and Cached Post Retrieval (using Redis, replace <page_number> with the desired page number)
+http://localhost:8000/api/v1/posts/?page=<page_number>
+
+# Test Elasticsearch Search (visit in browser and type a post title in the search bar)
+http://localhost:3000/
