@@ -27,10 +27,10 @@ class LargeResultsSetPagination(PageNumberPagination):
         previous_page = self.page.previous_page_number() if self.page.has_previous() else None
 
         return Response({
-            'total_count': self.page.paginator.count,
             'current_page': current_page,
             'next_page': next_page,
             'previous_page': previous_page,
+            'page_size': self.page_size,
             'data': data  # Rename 'results' to 'data'
         })
 

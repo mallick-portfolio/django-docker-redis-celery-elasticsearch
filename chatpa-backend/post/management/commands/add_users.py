@@ -14,13 +14,13 @@ class Command(BaseCommand):
         parser.add_argument(
             '--users',
             type=int,
-            default=1000,
+            default=100000,
             help='Number of random users to generate'
         )
 
     def handle(self, *args, **kwargs):
         num_users = kwargs['users']
-        batch_size = 100  # Adjust this based on your memory and database speed
+        batch_size = 1000  # Adjust this based on your memory and database speed
         faker = Faker()
 
         users_to_create = []
