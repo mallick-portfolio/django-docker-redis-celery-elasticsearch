@@ -127,10 +127,11 @@ CACHES = {
         }
     }
 }
-REDIS_HOST = env('REDIS_HOST', default='localhost')  # default to localhost if not set
+REDIS_HOST = env('REDIS_HOST', default='chatpa-redis-1')  # default to localhost if not set
 REDIS_PORT = env('REDIS_PORT', default=6379)
 REDIS_DB = env('REDIS_DB', default=0)
-redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+REDIS_CLIENT = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+print("redisclient", REDIS_CLIENT)
 
 ELASTICSEARCH_DSL = {
     "default": {

@@ -1,6 +1,8 @@
 from django.conf import settings
 import hashlib
-import redis
+import logging
+
+logger = logging.getLogger(__name__)
 
 class BloomFilter:
     def __init__(self, redis_client, key, size, hash_count):
@@ -9,9 +11,12 @@ class BloomFilter:
         self.size = size
         self.hash_count = hash_count
         self.bit_array = [False] * self.size
+        
 
     def _hash(self, item, seed):
         hash_obj = hashlib.md5(f"{item}-{seed}".encode())
+        print("i am here")
+        logger.info(f"Initializing bloom filter with size {self.redis_client} and hash count {self.hash_count}")
         return int(hash_obj.hexdigest(), 16) % self.size
     
     def add(self, item, seed):
