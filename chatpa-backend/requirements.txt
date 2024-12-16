@@ -10,6 +10,7 @@ django-elasticsearch-dsl-drf==0.22.5
 django-environ==0.11.2
 django-nine==0.2.7
 django-redis==5.4.0
+django-storages==1.14.4
 djangorestframework==3.15.2
 elastic-transport==8.15.1
 elasticsearch==8.15.1
@@ -17,6 +18,7 @@ elasticsearch-dsl==8.15.4
 Faker==30.8.2
 jmespath==1.0.1
 packaging==24.1
+pillow==11.0.0
 psycopg2==2.9.10
 python-dateutil==2.9.0.post0
 redis==5.2.0
